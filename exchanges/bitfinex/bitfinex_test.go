@@ -13,6 +13,7 @@ import (
 	"github.com/thrasher-corp/gocryptotrader/currency"
 	exchange "github.com/thrasher-corp/gocryptotrader/exchanges"
 	"github.com/thrasher-corp/gocryptotrader/exchanges/asset"
+	"github.com/thrasher-corp/gocryptotrader/exchanges/kline"
 	"github.com/thrasher-corp/gocryptotrader/exchanges/order"
 	"github.com/thrasher-corp/gocryptotrader/exchanges/sharedtestvalues"
 	"github.com/thrasher-corp/gocryptotrader/exchanges/websocket/wshandler"
@@ -1208,5 +1209,102 @@ func TestWsNotifications(t *testing.T) {
 	err = b.wsHandleData([]byte(pressXToJSON))
 	if err != nil {
 		t.Error(err)
+	}
+}
+func TestParseInterval(t *testing.T) {
+	testCases := []struct {
+		name     string
+		interval time.Duration
+		expected TimeInterval
+		err      error
+	}{
+		{
+			"OneMin",
+			kline.OneMin,
+			TimeIntervalMinute,
+			nil,
+		},
+		{
+			"FiveMin",
+			kline.FiveMin,
+			TimeIntervalFiveMinutes,
+			nil,
+		},
+		{
+			"FifteenMin",
+			kline.FifteenMin,
+			TimeIntervalFifteenMinutes,
+			nil,
+		},
+		{
+			"ThirtyMin",
+			kline.ThirtyMin,
+			TimeIntervalThirtyMinutes,
+			nil,
+		},
+		{
+			"OneHour",
+			kline.OneHour,
+			TimeIntervalHour,
+			nil,
+		},
+		{
+			"ThreeHour",
+			kline.OneHour*3,
+			TimeIntervalThreeHours,
+			nil,
+		},
+		{
+			"SixHour",
+			kline.SixHour,
+			TimeIntervalSixHours,
+			nil,
+		},
+		{
+			"EightHour",
+			kline.TwelveHour,
+			TimeIntervalTwelveHours,
+			nil,
+		},
+		{
+			"TwelveHour",
+			kline.TwelveHour,
+			TimeIntervalTwelveHours,
+			nil,
+		},
+		{
+			"OneDay",
+			kline.OneDay,
+			TimeIntervalDay,
+			nil,
+		},
+		{
+			"OneWeek",
+			kline.OneWeek,
+			TimeIntervalSevenDays,
+			nil,
+		},
+		{
+			"default",
+			time.Hour * 1337,
+			TimeIntervalHour,
+			errInvalidInterval,
+		},
+	}
+
+	for x := range testCases {
+		test := testCases[x]
+		t.Run(test.name, func(t *testing.T) {
+			v, err := parseInterval(test.interval)
+			if err != nil {
+				if err != test.err {
+					t.Fatal(err)
+				}
+			} else {
+				if v != test.expected {
+					t.Fatalf("%v: received %v expected %v", test.name, v, test.expected)
+				}
+			}
+		})
 	}
 }

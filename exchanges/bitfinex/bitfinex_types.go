@@ -1,6 +1,9 @@
 package bitfinex
 
-import "time"
+import (
+	"errors"
+	"time"
+)
 
 // AcceptedOrderType defines the accepted market types, exchange strings denote
 // non-contract order types.
@@ -11,6 +14,8 @@ var AcceptedOrderType = []string{"market", "limit", "stop", "trailing-stop",
 // AcceptedWalletNames defines different wallets supported by the exchange
 var AcceptedWalletNames = []string{"trading", "exchange", "deposit", "margin",
 	"funding"}
+
+var errInvalidInterval = errors.New("invalid interval")
 
 // AcceptableMethods defines a map of currency codes to methods
 var AcceptableMethods = make(map[string]string)
@@ -711,3 +716,24 @@ type WsCancelOfferRequest struct {
 type WsCancelAllOrdersRequest struct {
 	All int64 `json:"all"`
 }
+
+// timeFrame values: '1m', '5m', '15m', '30m', '1h', '3h', '6h', '12h', '1D',
+// '7D', '14D', '1M'
+// TimeInterval represents interval enum.
+type TimeInterval string
+
+// Vars related to time intervals
+var (
+	TimeIntervalMinute         = TimeInterval("1m")
+	TimeIntervalFiveMinutes    = TimeInterval("5m")
+	TimeIntervalFifteenMinutes = TimeInterval("15m")
+	TimeIntervalThirtyMinutes  = TimeInterval("30m")
+	TimeIntervalHour           = TimeInterval("1h")
+	TimeIntervalThreeHours     = TimeInterval("3h")
+	TimeIntervalSixHours       = TimeInterval("6h")
+	TimeIntervalTwelveHours    = TimeInterval("12h")
+	TimeIntervalDay            = TimeInterval("1d")
+	TimeIntervalSevenDays      = TimeInterval("7d")
+	TimeIntervalFourteenDays   = TimeInterval("14d")
+	TimeIntervalMonth          = TimeInterval("1M")
+)

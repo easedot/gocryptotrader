@@ -775,5 +775,34 @@ func (b *Bitfinex) ValidateCredentials() error {
 
 // GetHistoricCandles returns candles between a time period for a set time interval
 func (b *Bitfinex) GetHistoricCandles(pair currency.Pair, a asset.Item, start, end time.Time, interval time.Duration) (kline.Item, error) {
-	return kline.Item{}, common.ErrNotYetImplemented
+	intervalToString, err := parseInterval(interval)
+	if err != nil {
+		return kline.Item{}, err
+	}
+
+	symbol:=b.FormatExchangeCurrency(pair, a).String()
+
+	candles,err:=b.GetCandles(symbol,string(intervalToString),start.Unix(),end.Unix(),1,true,true)
+	if err != nil {
+		return kline.Item{}, err
+	}
+
+	ret := kline.Item{
+		Exchange: b.Name,
+		Pair:     pair,
+		Asset:    a,
+		Interval: interval,
+	}
+
+	for x := range candles {
+		ret.Candles = append(ret.Candles, kline.Candle{
+			Time:   time.Unix(candles[x].Timestamp,0),
+			Open:   candles[x].Open,
+			High:   candles[x].Close,
+			Low:    candles[x].Low,
+			Close:  candles[x].Close,
+			Volume: candles[x].Volume,
+		})
+	}
+	return ret, nil
 }

@@ -14,6 +14,7 @@ import (
 	"github.com/thrasher-corp/gocryptotrader/common/crypto"
 	"github.com/thrasher-corp/gocryptotrader/currency"
 	exchange "github.com/thrasher-corp/gocryptotrader/exchanges"
+	"github.com/thrasher-corp/gocryptotrader/exchanges/kline"
 	"github.com/thrasher-corp/gocryptotrader/exchanges/order"
 	"github.com/thrasher-corp/gocryptotrader/exchanges/request"
 	"github.com/thrasher-corp/gocryptotrader/exchanges/websocket/wshandler"
@@ -1362,4 +1363,33 @@ func (b *Bitfinex) PopulateAcceptableMethods() error {
 		}
 	}
 	return nil
+}
+
+// timeFrame values: '1m', '5m', '15m', '30m', '1h', '3h', '6h', '12h', '1D',
+// '7D', '14D', '1M'
+func parseInterval(in time.Duration) (TimeInterval, error) {
+	switch in {
+	case kline.OneMin:
+		return TimeIntervalMinute, nil
+	case kline.FiveMin:
+		return TimeIntervalFiveMinutes, nil
+	case kline.FifteenMin:
+		return TimeIntervalFifteenMinutes, nil
+	case kline.ThirtyMin:
+		return TimeIntervalThirtyMinutes, nil
+	case kline.OneHour:
+		return TimeIntervalHour, nil
+	case kline.OneHour*3:
+		return TimeIntervalThreeHours, nil
+	case kline.SixHour:
+		return TimeIntervalSixHours, nil
+	case kline.TwelveHour:
+		return TimeIntervalTwelveHours, nil
+	case kline.OneDay:
+		return TimeIntervalDay, nil
+	case kline.OneWeek:
+		return TimeIntervalSevenDays, nil
+	default:
+		return TimeIntervalMinute, errInvalidInterval
+	}
 }
